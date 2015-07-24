@@ -15,7 +15,7 @@ public class MCPCSVFileParser extends CSVFileParser {
     private static final int OBFNAME_INDEX = 0;
     private static final int DEOBFNAME_INDEX = 1;
     private static final int SIDE_INDEX = 2;
-    private static final int DESC_INDEX = 3;
+    //private static final int DESC_INDEX = 3;
 
     private final TargetType type;
     private final int side;

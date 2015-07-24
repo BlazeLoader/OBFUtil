@@ -2,7 +2,6 @@ package net.acomputerdog.OBFUtil.parse.types;
 
 import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.core.file.TextFileReader;
 import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
@@ -10,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
 
 /**
  * Reads and writes obfuscation mappings to a .csv file.  Due to variations in CSV formats, this class is abstract so that subclasses can identify the correct data to read.
@@ -46,47 +47,41 @@ public abstract class CSVFileParser implements FileParser {
         if (file == null) {
             throw new IllegalArgumentException("File must not be null!");
         }
-        TextFileReader reader = null;
-        try {
-            CSVFile csv = new CSVFile();
-            reader = new TextFileReader(file);
-            String[] lines = reader.readAllLines();
-            int lineNum = 0;
-            int realLineNum = 0;
-            String[] categories = new String[0];
-            for (String line : lines) {
-                if (!isLineEmpty(line)) {
-                    String[] items = line.split(Patterns.COMMA);
-                    if (lineNum == 0) {
-                        categories = items;
-                        lineNum = 0;
-                    } else {
-                        int itemNum = 0;
-                        for (String item : items) {
-                            if (itemNum < categories.length) {
-                                csv.addItem(categories[itemNum], item);
-                                itemNum++;
-                            } else {
-                                String newItem = csv.getItem(categories[itemNum - 1], csv.size() - 1) + "," + (item);
-                                csv.setItem(categories[itemNum - 1], csv.size() - 1, newItem);
-                            }
-                        }
-                        while (itemNum < categories.length) {
-                            csv.addItem(categories[itemNum], "");
+		
+        CSVFile csv = new CSVFile();
+        List<String> lines = FileUtils.readLines(file);
+        int lineNum = 0;
+        int realLineNum = 0;
+        String[] categories = new String[0];
+        for (String line : lines) {
+            if (!isLineEmpty(line)) {
+                String[] items = line.split(Patterns.COMMA);
+                if (lineNum == 0) {
+                    categories = items;
+                    lineNum = 0;
+                } else {
+                    int itemNum = 0;
+                    for (String item : items) {
+                        if (itemNum < categories.length) {
+                            csv.addItem(categories[itemNum], item);
                             itemNum++;
+                        } else {
+                            String newItem = csv.getItem(categories[itemNum - 1], csv.size() - 1) + "," + (item);
+                            csv.setItem(categories[itemNum - 1], csv.size() - 1, newItem);
                         }
-
                     }
-                    lineNum++;
+                    while (itemNum < categories.length) {
+                        csv.addItem(categories[itemNum], "");
+                        itemNum++;
+                    }
+
                 }
-                realLineNum++;
+                lineNum++;
             }
-            this.writeCSVToTable(file, csv, table);
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
+            realLineNum++;
         }
+        writeCSVToTable(file, csv, table);
+        
     }
 
     /**

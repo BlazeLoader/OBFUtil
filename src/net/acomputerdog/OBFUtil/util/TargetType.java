@@ -19,9 +19,13 @@ public enum TargetType {
     /**
      * A field
      */
-    FIELD("FIELD", "FD");
-    //TODO: Add comment and param?
-
+    FIELD("FIELD", "FD"),
+    //TO DO: Add comment and param?
+    /**
+     * A class constructor
+     */
+    CONSTRUCTOR("CONSTRUCTOR", "CSTR", "CS");
+    
     private final String[] aliases;
 
     TargetType(String... aliases) {
@@ -29,7 +33,7 @@ public enum TargetType {
     }
 
     /**
-     * Gets a TargetType from it's name or an aliase
+     * Gets a TargetType from it's name or an alias
      *
      * @param type The name to identify with
      * @return Return the TargetType identified by type

@@ -4,10 +4,12 @@ import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.table.OBFTable;
 import net.acomputerdog.OBFUtil.util.TargetType;
-import net.acomputerdog.core.file.TextFileReader;
 import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 /**
  * Reads and writes obfuscation data to an MCP .srg file.
@@ -40,51 +42,44 @@ public class SRGFileParser implements FileParser {
         if (file == null) {
             throw new IllegalArgumentException("File must not be null!");
         }
-        TextFileReader reader = null;
-        try {
-            reader = new TextFileReader(file);
-            int line = 0;
-            for (String str : reader.readAllLines()) {
-                line++;
-                String[] sections = str.split(Patterns.SPACE);
-                if (sections.length < 3) {
+        int line = 0;
+        List<String> lines = FileUtils.readLines(file);
+        for (String str : lines) {
+            line++;
+            String[] sections = str.split(Patterns.SPACE);
+            if (sections.length < 3) {
+                throw new FormatException("Not enough sections on line " + line + ": \"" + str + "\"");
+            }
+            TargetType type = TargetType.getType(sections[0].replace(":", ""));
+            if (type == null) {
+                throw new FormatException("Illegal target type on line " + line + ": \"" + sections[0] + "\"");
+            }
+            String obf;
+            String deobf;
+            String side;
+            if (type == TargetType.METHOD) {
+                if (sections.length < 5) {
                     throw new FormatException("Not enough sections on line " + line + ": \"" + str + "\"");
                 }
-                TargetType type = TargetType.getType(sections[0].replace(":", ""));
-                if (type == null) {
-                    throw new FormatException("Illegal target type on line " + line + ": \"" + sections[0] + "\"");
-                }
-                String obf;
-                String deobf;
-                String side;
-                if (type == TargetType.METHOD) {
-                    if (sections.length < 5) {
-                        throw new FormatException("Not enough sections on line " + line + ": \"" + str + "\"");
-                    }
-                    if (stripDescs) {
-                        obf = sections[1].replace('/', '.');
-                        deobf = sections[3].replace('/', '.');
-                    } else {
-                        obf = sections[1].replace('/', '.').concat(" ").concat(sections[2].replace('/', '.'));
-                        deobf = sections[3].replace('/', '.').concat(" ").concat(sections[4].replace('/', '.'));
-                    }
-                    side = (sections.length >= 6) ? sections[5].replace("#", "") : "";
-                } else {
+                if (stripDescs) {
                     obf = sections[1].replace('/', '.');
-                    deobf = sections[2].replace('/', '.');
-                    side = (sections.length >= 4) ? sections[3].replace("#", "") : "";
-
-
+                    deobf = sections[3].replace('/', '.');
+                } else {
+                    obf = sections[1].replace('/', '.').concat(" ").concat(sections[2].replace('/', '.'));
+                    deobf = sections[3].replace('/', '.').concat(" ").concat(sections[4].replace('/', '.'));
                 }
-                if ((overwrite || !table.hasTypeDeobf(obf, type)) && (side.isEmpty() || side.equals(this.side))) {
-                    table.addType(obf, deobf, type);
-                }
+                side = (sections.length >= 6) ? sections[5].replace("#", "") : "";
+            } else {
+                obf = sections[1].replace('/', '.');
+                deobf = sections[2].replace('/', '.');
+                side = (sections.length >= 4) ? sections[3].replace("#", "") : "";
+
 
             }
-        } finally {
-            if (reader != null) {
-                reader.close();
+            if ((overwrite || !table.hasTypeDeobf(obf, type)) && (side.isEmpty() || side.equals(this.side))) {
+                table.addType(obf, deobf, type);
             }
+
         }
     }
 
