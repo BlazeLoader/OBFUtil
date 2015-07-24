@@ -4,10 +4,12 @@ import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.table.OBFTable;
 import net.acomputerdog.OBFUtil.util.TargetType;
-import net.acomputerdog.core.file.TextFileReader;
 import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 /**
  * Reads and write obfuscation data to an SOBF (Sided OBFuscation) file.  This format is an adaption of the OBF format to support sides defined in MCP files.
@@ -41,39 +43,32 @@ public class SOBFFileParser implements FileParser {
         if (file == null) {
             throw new IllegalArgumentException("File must not be null!");
         }
-        TextFileReader reader = null;
-        try {
-            reader = new TextFileReader(file);
-            int line = 0;
-            for (String str : reader.readAllLines()) {
-                line++;
-                if (isCommentLine(str)) {
-                    continue;
-                }
-                String[] typeParts = str.split(Patterns.COLON);
-                if (typeParts.length < 2) {
-                    throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
-                }
-                String[] sideParts = typeParts[0].split(Patterns.PERIOD);
-                if (sideParts.length < 2) {
-                    throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
-                }
-                TargetType type = TargetType.valueOf(sideParts[0]);
-                int side = Integer.parseInt(sideParts[1]);
-                if (type == null) {
-                    throw new FormatException("Illegal target type on line " + line + ": \"" + typeParts[0] + "\"");
-                }
-                String[] obfParts = typeParts[1].split(Patterns.EQUALS);
-                if (obfParts.length < 2) {
-                    throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
-                }
-                if ((overwrite || !table.hasTypeDeobf(obfParts[0], type)) && (side == this.side)) {
-                    table.addType(obfParts[0], obfParts[1], type);
-                }
+        int line = 0;
+        List<String> lines = FileUtils.readLines(file);
+        for (String str : lines) {
+            line++;
+            if (isCommentLine(str)) {
+                continue;
             }
-        } finally {
-            if (reader != null) {
-                reader.close();
+            String[] typeParts = str.split(Patterns.COLON);
+            if (typeParts.length < 2) {
+                throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
+            }
+            String[] sideParts = typeParts[0].split(Patterns.PERIOD);
+            if (sideParts.length < 2) {
+                throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
+            }
+            TargetType type = TargetType.valueOf(sideParts[0]);
+            int side = Integer.parseInt(sideParts[1]);
+            if (type == null) {
+                throw new FormatException("Illegal target type on line " + line + ": \"" + typeParts[0] + "\"");
+            }
+            String[] obfParts = typeParts[1].split(Patterns.EQUALS);
+            if (obfParts.length < 2) {
+                throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
+            }
+            if ((overwrite || !table.hasTypeDeobf(obfParts[0], type)) && (side == this.side)) {
+                table.addType(obfParts[0], obfParts[1], type);
             }
         }
     }
@@ -114,7 +109,7 @@ public class SOBFFileParser implements FileParser {
     }
 
     private boolean isCommentLine(String str) {
-        String trimmed = str.trim();
-        return (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("//"));
+        str = str.trim();
+        return (str.isEmpty() || str.startsWith("#") || str.startsWith("//"));
     }
 }

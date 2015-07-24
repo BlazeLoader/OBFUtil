@@ -5,12 +5,13 @@ import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.parse.StreamParser;
 import net.acomputerdog.OBFUtil.table.OBFTable;
 import net.acomputerdog.OBFUtil.util.TargetType;
-import net.acomputerdog.core.file.TextFileReader;
 import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 /**
  * Reads and write obfuscation mappings to a .obf file.
@@ -26,15 +27,7 @@ public class OBFParser implements FileParser, StreamParser {
         if (file == null) {
             throw new IllegalArgumentException("File must not be null!");
         }
-        TextFileReader reader = null;
-        try {
-            reader = new TextFileReader(file);
-            parseStringArray(reader.readAllLines(), table, overwrite);
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
-        }
+        parseStringList(FileUtils.readLines(file), table, overwrite);
     }
 
     @Override
@@ -73,7 +66,7 @@ public class OBFParser implements FileParser, StreamParser {
             while ((line = in.readLine()) != null) {
                 data.add(line);
             }
-            parseStringArray(data.toArray(new String[data.size()]), table, overwrite);
+            parseStringList(data, table, overwrite);
         } finally {
             if (in != null) {
                 in.close();
@@ -109,7 +102,7 @@ public class OBFParser implements FileParser, StreamParser {
         return (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("//"));
     }
 
-    private int parseStringArray(String[] lines, OBFTable table, boolean overwrite) throws FormatException {
+    private int parseStringList(List<String> lines, OBFTable table, boolean overwrite) throws FormatException {
         int line = 0;
         for (String str : lines) {
             line++;
