@@ -49,15 +49,14 @@ public class BLConfigGen {
     }
 
     private static void addSRGsMethod(DirectOBFTableSRG dest, OBFTable sourceSRG, OBFTable sourceMCP) {
-
-        for (String str : sourceSRG.getAllMethodsDeobf()) {
+        for (String str : sourceSRG.getAllDeobf(TargetType.METHOD)) {
             String[] parts1 = str.split(Patterns.SPACE);
             if (parts1.length >= 1) {
                 String[] parts2 = parts1[0].split(Patterns.PERIOD);
-                String obf = sourceSRG.obfMethod(str);
+                String obf = sourceSRG.obf(str, TargetType.METHOD);
                 String searge = parts2[parts2.length - 1];
-                String mcp = sourceMCP.deobfMethod(searge);
-                dest.addMethodSRG(obf, str, rebuildName(parts2, mcp) + " " + parts1[1]);
+                String mcp = sourceMCP.deobf(searge, TargetType.METHOD);
+                dest.addTypeSRG(obf, str, rebuildName(parts2, mcp) + " " + parts1[1], TargetType.METHOD);
             } else {
                 System.out.println("No parts: " + str);
             }
@@ -65,27 +64,27 @@ public class BLConfigGen {
     }
 
     private static void addSRGsField(DirectOBFTableSRG dest, OBFTable sourceSRG, OBFTable sourceMCP) {
-        for (String str : sourceSRG.getAllFieldsDeobf()) {
+        for (String str : sourceSRG.getAllDeobf(TargetType.FIELD)) {
             String[] parts = str.split(Patterns.PERIOD);
             if (parts.length >= 1) {
                 String searge = parts[parts.length - 1];
-                String mcp = sourceMCP.deobfField(searge);
-                String obf = sourceSRG.obfField(str);
-                dest.addFieldSRG(obf, str, rebuildName(parts, mcp));
+                String mcp = sourceMCP.deobf(searge, TargetType.FIELD);
+                String obf = sourceSRG.obf(str, TargetType.FIELD);
+                dest.addTypeSRG(obf, str, rebuildName(parts, mcp), TargetType.FIELD);
             } else {
                 System.out.println("No parts: " + str);
             }
         }
     }
-
+    
     private static void addOthers(OBFTable dest, OBFTable source) {
-        for (String str : source.getAllClassesObf()) {
-            String cls = source.deobfClass(str);
-            dest.addClass(str, cls);
+        for (String str : source.getAllObf(TargetType.CLASS)) {
+            String cls = source.deobf(str, TargetType.CLASS);
+            dest.addType(str, cls, TargetType.CLASS);
         }
-        for (String str : source.getAllPackagesObf()) {
-            String pkg = source.deobfPackage(str);
-            dest.addPackage(str, pkg);
+        for (String str : source.getAllObf(TargetType.PACKAGE)) {
+            String pkg = source.deobf(str, TargetType.PACKAGE);
+            dest.addType(str, pkg, TargetType.PACKAGE);
         }
     }
 
