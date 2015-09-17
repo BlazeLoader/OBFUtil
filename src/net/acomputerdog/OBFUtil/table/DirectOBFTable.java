@@ -15,12 +15,10 @@ public class DirectOBFTable<P extends DirectOBFTable.ObfEntry, T extends ObfMap<
 	protected final TargetTypeMap<T> tableMappings = new TargetTypeMap<T>();
 	
     public String deobf(String obfName, TargetType type) {
-    	if (type == TargetType.CONSTRUCTOR) throw new IllegalArgumentException("Unknown target type: " + type.name());
 		return tableMappings.getChecked(type).byObf(obfName).deobfuscated;
     }
     
     public String obf(String deobfName, TargetType type) {
-    	if (type == TargetType.CONSTRUCTOR) throw new IllegalArgumentException("Unknown target type: " + type.name());
 		return tableMappings.getChecked(type).byDeobf(deobfName).obfuscated;
     }
         
