@@ -76,7 +76,7 @@ public class SRGFileParser implements FileParser {
 
 
             }
-            if ((overwrite || !table.hasTypeDeobf(obf, type)) && (side.isEmpty() || side.equals(this.side))) {
+            if ((overwrite || !table.hasDeobf(obf, type)) && (side.isEmpty() || side.equals(this.side))) {
                 table.addType(obf, deobf, type);
             }
 
@@ -99,8 +99,8 @@ public class SRGFileParser implements FileParser {
         try {
             out = new BufferedWriter(new FileWriter(file));
             for (TargetType type : TargetType.values()) {
-                for (String obf : table.getAllTypeObf(type)) {
-                    String deobf = table.deobfType(obf, type);
+                for (String obf : table.getAllObf(type)) {
+                    String deobf = table.deobf(obf, type);
                     out.write(getPrefix(type));
                     out.write(": ");
                     out.write(obf);

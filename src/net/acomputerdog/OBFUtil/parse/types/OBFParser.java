@@ -121,7 +121,7 @@ public class OBFParser implements FileParser, StreamParser {
             if (obfParts.length < 2) {
                 throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
             }
-            if (overwrite || !table.hasTypeDeobf(obfParts[0], type)) {
+            if (overwrite || !table.hasDeobf(obfParts[0], type)) {
                 table.addType(obfParts[0], obfParts[1], type);
             }
         }
@@ -130,8 +130,8 @@ public class OBFParser implements FileParser, StreamParser {
 
     private void writeTable(Writer out, OBFTable table) throws IOException {
         for (TargetType type : TargetType.values()) {
-            for (String obf : table.getAllTypeObf(type)) {
-                String deobf = table.deobfType(obf, type);
+            for (String obf : table.getAllObf(type)) {
+                String deobf = table.deobf(obf, type);
                 out.write(type.name());
                 out.write(":");
                 out.write(obf);

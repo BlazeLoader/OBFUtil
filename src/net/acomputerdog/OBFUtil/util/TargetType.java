@@ -1,5 +1,7 @@
 package net.acomputerdog.OBFUtil.util;
 
+import java.util.ArrayList;
+
 /**
  * Represents the part of a class to target.
  */
@@ -50,5 +52,21 @@ public enum TargetType {
             }
         }
         return null;
+    }
+    
+    private static TargetType[] parsable;
+    
+    public static TargetType[] parsable() {
+    	return parsable;
+    }
+    
+    static {
+    	ArrayList<TargetType> temp = new ArrayList();
+    	for (TargetType i : values()) {
+    		if (i != CONSTRUCTOR) {
+    			temp.add(i);
+    		}
+    	}
+    	parsable = temp.toArray(new TargetType[temp.size()]);
     }
 }

@@ -131,16 +131,16 @@ public class BLOBFParser implements FileParser, StreamParser {
                 if (parts.length < 7) {
                     throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
                 }
-                if (overwrite || !table.hasTypeObf(parts[1], type)) {
+                if (overwrite || !table.hasObf(parts[1], type)) {
                     if (stripDescs) {
-                        table.addTypeSRG(type, parts[1], parts[3], parts[5]);
+                        table.addTypeSRG(parts[1], parts[3], parts[5], type);
                     } else {
-                        table.addTypeSRG(type, parts[1] + " " + parts[2], parts[3] + " " + parts[4], parts[5] + " " + parts[6]);
+                        table.addTypeSRG(parts[1] + " " + parts[2], parts[3] + " " + parts[4], parts[5] + " " + parts[6], type);
                     }
                 }
             } else {
-                if (overwrite || !table.hasTypeObf(parts[1], type)) {
-                    table.addTypeSRG(type, parts[1], parts[2], parts[3]);
+                if (overwrite || !table.hasObf(parts[1], type)) {
+                    table.addTypeSRG(parts[1], parts[2], parts[3], type);
                 }
             }
         }
@@ -165,11 +165,11 @@ public class BLOBFParser implements FileParser, StreamParser {
                 if (parts.length < 7) {
                     throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
                 }
-                if (overwrite || !table.hasTypeObf(parts[1], type)) {
+                if (overwrite || !table.hasObf(parts[1], type)) {
                     table.addType(parts[1] + " " + parts[2], parts[5] + " " + parts[6], type);
                 }
             } else {
-                if (overwrite || !table.hasTypeObf(parts[1], type)) {
+                if (overwrite || !table.hasObf(parts[1], type)) {
                     table.addType(parts[1], parts[3], type);
                 }
             }
@@ -187,10 +187,10 @@ public class BLOBFParser implements FileParser, StreamParser {
     private void writeTableNormal(Writer out, OBFTable table) throws IOException {
 
         for (TargetType type : TargetType.values()) {
-            for (String obf : table.getAllTypeObf(type)) {
+            for (String obf : table.getAllObf(type)) {
                 out.write(type.name());
                 out.write(":");
-                String deobf = table.deobfType(obf, type);
+                String deobf = table.deobf(obf, type);
                 if (type == TargetType.METHOD) {
                     String[] obfParts = obf.split(Patterns.SPACE);
                     String obfName = obfParts[0];
@@ -219,11 +219,11 @@ public class BLOBFParser implements FileParser, StreamParser {
 
     private void writeTableSRG(Writer out, DirectOBFTableSRG table) throws IOException {
         for (TargetType type : TargetType.values()) {
-            for (String obf : table.getAllTypeObf(type)) {
+            for (String obf : table.getAllObf(type)) {
                 out.write(type.name());
                 out.write(":");
-                String srg = table.getSRGFromObfType(obf, type);
-                String deobf = table.deobfType(obf, type);
+                String srg = table.getSRGFromObf(obf, type);
+                String deobf = table.deobf(obf, type);
                 if (type == TargetType.METHOD) {
                     String[] obfParts = obf.split(Patterns.SPACE);
                     String obfName = obfParts[0];
