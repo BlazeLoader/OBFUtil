@@ -112,7 +112,7 @@ public class BLOBFParser implements FileParser, StreamParser {
         }
     }
 
-    private void parseStringArraySRG(String[] lines, DirectOBFTableSRG table, boolean overwrite) throws FormatException {
+    protected void parseStringArraySRG(String[] lines, DirectOBFTableSRG table, boolean overwrite) throws FormatException {
         int line = 0;
         for (String str : lines) {
             line++;
@@ -146,7 +146,7 @@ public class BLOBFParser implements FileParser, StreamParser {
         }
     }
 
-    private void parseStringArrayNormal(String[] lines, OBFTable table, boolean overwrite) throws FormatException {
+    protected void parseStringArrayNormal(String[] lines, OBFTable table, boolean overwrite) throws FormatException {
         int line = 0;
         for (String str : lines) {
             line++;
@@ -184,8 +184,7 @@ public class BLOBFParser implements FileParser, StreamParser {
         }
     }
 
-    private void writeTableNormal(Writer out, OBFTable table) throws IOException {
-
+    protected void writeTableNormal(Writer out, OBFTable table) throws IOException {
         for (TargetType type : TargetType.values()) {
             for (String obf : table.getAllObf(type)) {
                 out.write(type.name());
@@ -217,7 +216,7 @@ public class BLOBFParser implements FileParser, StreamParser {
         }
     }
 
-    private void writeTableSRG(Writer out, DirectOBFTableSRG table) throws IOException {
+    protected void writeTableSRG(Writer out, DirectOBFTableSRG table) throws IOException {
         for (TargetType type : TargetType.values()) {
             for (String obf : table.getAllObf(type)) {
                 out.write(type.name());
@@ -257,14 +256,11 @@ public class BLOBFParser implements FileParser, StreamParser {
         }
     }
 
-    private String packageToPath(String pkg) {
-        if (pkg == null) {
-            return null;
-        }
-        return pkg.replace('.', '/');
+    protected String packageToPath(String pkg) {
+        return pkg == null ? null : pkg.replace('.', '/');
     }
 
-    private boolean isCommentLine(String str) {
+    protected boolean isCommentLine(String str) {
         String trimmed = str.trim();
         return (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("//"));
     }

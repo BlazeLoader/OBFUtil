@@ -31,6 +31,10 @@ public class DirectOBFTableSRG<P extends DirectOBFTableSRG.ObfEntrySrg, T extend
     	return tableMappings.getChecked(type).hasSrg(srgName);
     }
     
+    public String[] getAllSRG(TargetType type) {
+    	return tableMappings.getChecked(type).getAllSrg();
+    }
+    
     protected T createMap() {
     	return (T)new MappingSrg();
     }
