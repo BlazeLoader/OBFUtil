@@ -51,7 +51,6 @@ public abstract class CSVFileParser implements FileParser {
         CSVFile csv = new CSVFile();
         List<String> lines = FileUtils.readLines(file);
         int lineNum = 0;
-        int realLineNum = 0;
         String[] categories = new String[0];
         for (String line : lines) {
             if (!isLineEmpty(line)) {
@@ -78,7 +77,6 @@ public abstract class CSVFileParser implements FileParser {
                 }
                 lineNum++;
             }
-            realLineNum++;
         }
         writeCSVToTable(file, csv, table);
         

@@ -13,12 +13,10 @@ import net.acomputerdog.core.java.Patterns;
 public class EnigmaParser extends BLOBFParser {
 	
     protected void parseStringArraySRG(String[] lines, DirectOBFTableSRG table, boolean overwrite) throws FormatException {
-        int line = 0;
         String activeClass = null;
         String activeClassObf = null;
         List<String[]> retroActiveMethods = Lists.newArrayList();
         for (String str : lines) {
-            line++;
             if (isCommentLine(str)) continue;
             
             String[] parts = str.trim().split(Patterns.SPACE);
@@ -55,12 +53,10 @@ public class EnigmaParser extends BLOBFParser {
     }
 
     protected void parseStringArrayNormal(String[] lines, OBFTable table, boolean overwrite) throws FormatException {
-        int line = 0;
         String activeClass = null;
         String activeClassObf = null;
         List<String[]> retroActiveMethods = Lists.newArrayList();
         for (String str : lines) {
-            line++;
             if (isCommentLine(str)) continue;
             
             String[] parts = str.trim().split(Patterns.SPACE);
