@@ -1,6 +1,6 @@
 package net.acomputerdog.OBFUtil.util;
 
-public interface ObfMapSrg<T> extends ObfMap<T> {
+public interface ObfMapSrg<T extends ObfMapSrg.Entry> extends ObfMap<T> {
 	
 	public String[] getAllSrg();
 	
@@ -9,4 +9,8 @@ public interface ObfMapSrg<T> extends ObfMap<T> {
 	public boolean hasSrg(String srg);
 	
 	public void add(String obf, String deobf, String srg);
+	
+    public static interface Entry extends ObfMap.Entry {
+    	String srg();
+    }
 }

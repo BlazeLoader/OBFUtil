@@ -10,24 +10,24 @@ import java.util.Map.Entry;
 /**
  * A simple, direct implementation of OBFTable.  Uses HashMaps and ArrayLists to store data.
  */
-public class DirectOBFTable<P extends DirectOBFTable.ObfEntry, T extends ObfMap<P>> implements OBFTable {
-	
+public class DirectOBFTable<P extends ObfMap.Entry, T extends ObfMap<P>> implements OBFTable {
 	protected final TargetTypeMap<T> tableMappings = new TargetTypeMap<T>();
+	private int size = 0;
 	
     public String deobf(String obfName, TargetType type) {
-		return tableMappings.getChecked(type).byObf(obfName).deobfuscated;
+		return tableMappings.getChecked(type).byObf(obfName).deObf();
     }
     
     public String obf(String deobfName, TargetType type) {
-		return tableMappings.getChecked(type).byDeobf(deobfName).obfuscated;
+		return tableMappings.getChecked(type).byDeobf(deobfName).obf();
     }
         
     public boolean hasObf(String obfName, TargetType type) {
-    	return tableMappings.getChecked(type).hasObf(obfName);
+    	return tableMappings.containsKey(type) && tableMappings.getChecked(type).hasObf(obfName);
     }
     
     public boolean hasDeobf(String deobfName, TargetType type) {
-    	return tableMappings.getChecked(type).hasDeObf(deobfName);
+    	return tableMappings.containsKey(type) && tableMappings.getChecked(type).hasDeObf(deobfName);
     }
     
     public String[] getAllObf(TargetType type) {
@@ -39,6 +39,7 @@ public class DirectOBFTable<P extends DirectOBFTable.ObfEntry, T extends ObfMap<
     }
     
     protected void preAdd(TargetType type) {
+    	size++;
     	if (!tableMappings.containsKey(type)) tableMappings.put(type, createMap());
     }
     
@@ -57,10 +58,14 @@ public class DirectOBFTable<P extends DirectOBFTable.ObfEntry, T extends ObfMap<
     	}
     }
     
-    protected class Mapping implements ObfMap<P> {
+    public int size() {
+    	return size;
+    }
+    
+    public class Mapping implements ObfMap<P> {
     	
-    	private final Map<String, P> obfuscated = new HashMap<String, P>(); 
-    	private final Map<String, P> deobfuscated = new HashMap<String, P>();
+    	protected final Map<String, P> obfuscated = new HashMap<String, P>(); 
+    	protected final Map<String, P> deobfuscated = new HashMap<String, P>();
     	
     	public String[] getAllObf() {
     		return deobfuscated.keySet().toArray(new String[deobfuscated.size()]);
@@ -91,20 +96,20 @@ public class DirectOBFTable<P extends DirectOBFTable.ObfEntry, T extends ObfMap<
 		}
 		
 		protected void add(P entry) {
-			obfuscated.put(entry.obfuscated, entry);
-			deobfuscated.put(entry.deobfuscated, entry);
+			obfuscated.put(entry.obf(), entry);
+			deobfuscated.put(entry.deObf(), entry);
 		}
 		
 		public void write(OBFTable table, boolean overwrite, TargetType type) {
-			for (Entry<String, P> i : obfuscated.entrySet()) {
+			for (Map.Entry<String, P> i : obfuscated.entrySet()) {
 	            if (overwrite || !table.hasObf(i.getKey(), type)) {
-	            	table.addType(i.getKey(), i.getValue().deobfuscated, type);
+	            	table.addType(i.getKey(), i.getValue().deObf(), type);
 	            }
 	        }
 		}
     }
     
-    public class ObfEntry {
+    public class ObfEntry implements ObfMap.Entry {
 		
 		public String obfuscated;
 		public String deobfuscated;
@@ -112,6 +117,14 @@ public class DirectOBFTable<P extends DirectOBFTable.ObfEntry, T extends ObfMap<
 		public ObfEntry(String obf, String deobf) {
 			obfuscated = obf;
 			deobfuscated = deobf;
+		}
+		
+		public String obf() {
+			return obfuscated;
+		}
+		
+		public String deObf() {
+			return deobfuscated;
 		}
 	}
 }

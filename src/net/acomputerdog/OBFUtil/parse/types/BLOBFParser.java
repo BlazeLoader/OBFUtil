@@ -1,6 +1,5 @@
 package net.acomputerdog.OBFUtil.parse.types;
 
-import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.parse.StreamParser;
 import net.acomputerdog.OBFUtil.table.DirectOBFTableSRG;
@@ -17,7 +16,7 @@ import java.util.List;
  * Formatted "<TYPE>:<OBF>:<SEARGE>:<MCP>"  for packages, classes, and fields.
  * Formatted "METHOD:<OBF_NAME>:<OBF_DESC>:<SEARGE_NAME>:<SEARGE_DESC>:<MCP_NAME>:<MCP_DESC>"  for methods
  */
-public class BLOBFParser implements FileParser, StreamParser {
+public class BLOBFParser implements StreamParser {
 
     private final boolean stripDescs;
 

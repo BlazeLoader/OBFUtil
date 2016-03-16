@@ -1,6 +1,5 @@
 package net.acomputerdog.OBFUtil.parse.types;
 
-import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.parse.StreamParser;
 import net.acomputerdog.OBFUtil.table.OBFTable;
@@ -20,7 +19,7 @@ import org.apache.commons.io.FileUtils;
  *   // Comment type 2
  *   <TYPE>:<OBF>=<DEOBF>
  */
-public class OBFParser implements FileParser, StreamParser {
+public class OBFParser implements StreamParser {
 
     @Override
     public void loadEntries(File file, OBFTable table, boolean overwrite) throws IOException {
