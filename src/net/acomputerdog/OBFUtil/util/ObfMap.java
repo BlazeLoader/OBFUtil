@@ -2,7 +2,7 @@ package net.acomputerdog.OBFUtil.util;
 
 import net.acomputerdog.OBFUtil.table.OBFTable;
 
-public interface ObfMap<T> {
+public interface ObfMap<T extends ObfMap.Entry> {
 	
 	public String[] getAllObf();
 	
@@ -19,4 +19,9 @@ public interface ObfMap<T> {
 	public void add(String obf, String deobf);
 	
 	public void write(OBFTable table, boolean overwrite, TargetType type);
+	
+    public static interface Entry {
+    	String obf();
+    	String deObf();
+    }
 }

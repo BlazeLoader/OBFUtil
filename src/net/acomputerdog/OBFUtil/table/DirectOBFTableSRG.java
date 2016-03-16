@@ -9,26 +9,26 @@ import net.acomputerdog.OBFUtil.util.TargetType;
 /**
  * OBFTable that adds support for a third "searge" obfuscation name.  Based on DirectOBFTable.
  */
-public class DirectOBFTableSRG<P extends DirectOBFTableSRG.ObfEntrySrg, T extends ObfMapSrg<P>> extends DirectOBFTable<P, T> implements OBFTableSRG {
+public class DirectOBFTableSRG<P extends ObfMapSrg.Entry, T extends ObfMapSrg<P>> extends DirectOBFTable<P, T> implements OBFTableSRG {
 	
     public String getObfFromSRG(String searge, TargetType type) {
-    	return tableMappings.getChecked(type).bySrg(searge).obfuscated;
+    	return tableMappings.getChecked(type).bySrg(searge).obf();
     }
     
     public String getDeObfFromSRG(String searge, TargetType type) {
-    	return tableMappings.getChecked(type).bySrg(searge).deobfuscated;
+    	return tableMappings.getChecked(type).bySrg(searge).deObf();
     }
     
     public String getSRGFromObf(String obf, TargetType type) {
-    	return tableMappings.getChecked(type).byObf(obf).searge;
+    	return tableMappings.getChecked(type).byObf(obf).srg();
     }
     
     public String getSRGFromDeObf(String deobf, TargetType type) {
-    	return tableMappings.getChecked(type).byDeobf(deobf).searge;
+    	return tableMappings.getChecked(type).byDeobf(deobf).srg();
     }
     
     public boolean hasSRG(String srgName, TargetType type) {
-    	return tableMappings.getChecked(type).hasSrg(srgName);
+    	return tableMappings.containsKey(type) && tableMappings.getChecked(type).hasSrg(srgName);
     }
     
     public String[] getAllSRG(TargetType type) {
@@ -50,7 +50,7 @@ public class DirectOBFTableSRG<P extends DirectOBFTableSRG.ObfEntrySrg, T extend
     
     public class MappingSrg extends Mapping implements ObfMapSrg<P> {
     	
-    	private final Map<String, P> searge = new HashMap<String, P>();
+    	protected final Map<String, P> searge = new HashMap<String, P>();
     	
 		public String[] getAllSrg() {
 			return searge.keySet().toArray(new String[searge.size()]);
@@ -74,16 +74,20 @@ public class DirectOBFTableSRG<P extends DirectOBFTableSRG.ObfEntrySrg, T extend
     	
 		protected void add(P entry) {
 			super.add(entry);
-			searge.put(entry.searge, entry);
+			searge.put(entry.srg(), entry);
 		}
     }
     
-    public class ObfEntrySrg extends DirectOBFTable.ObfEntry {
+    public class ObfEntrySrg extends DirectOBFTable.ObfEntry implements ObfMapSrg.Entry {
 		public String searge;
 		
 		public ObfEntrySrg(String obf, String deobf, String srg) {
 			super(obf, deobf);
 			searge = srg;
+		}
+		
+		public String srg() {
+			return searge;
 		}
 	}
 }

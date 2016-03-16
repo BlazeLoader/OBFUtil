@@ -70,4 +70,9 @@ public interface OBFTable {
      * @param overwrite If true, overwrite existing mappings.
      */
     public void writeToTable(OBFTable table, boolean overwrite);
+    
+    /**
+     * Gets the total number of obfuscation entries in this table.
+     */
+    public int size();
 }
