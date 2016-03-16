@@ -25,7 +25,6 @@ public interface StreamParser extends FileParser {
      *
      * @param stream The stream to write to.
      * @param table  The table to read from
-     * @throws IOException
      */
     public void storeEntries(OutputStream stream, OBFTable table) throws IOException;
 }
