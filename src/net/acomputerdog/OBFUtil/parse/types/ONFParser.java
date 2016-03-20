@@ -29,39 +29,42 @@ import net.acomputerdog.core.java.Patterns;
 /**
  * 
  * Parser for reading and writing a dense obfuscation mappings file (.onf).
- * 
- *  - AccessTransformer directives may also be included but are not parsed.
- *  - Other files may be side loaded using >>{file} notation.
- *  - All srg names are give without their type prefix (field_/func_). It will be inferred from the context.
- *  
- *   Format:
- *   {obfuscated package}:{mcp package}
- *   	{obfuscated class}:{mcp class}
- *   		{obfuscated field}:{srg field}:{mcp field}
- *   		<init> {mcp descriptor}
- *   		{obfuscated method name}:{srg method name}:{mcp method name} {mcp descriptor}
- *   
- *   # Comments may be included as such
- *   
- *   AT (enhanced) format:
- *   {obfuscated package}:{mcp package}
- *   	{ac}{f}{m}!{obfuscated class}:{mcp class}
- *   		{ac}!{obfuscated field}:{srg field}:{mcp field}
- *   		{ac}!<init> {mcp descriptor}
- *   		{ac}!{obfuscated method name}:{srg method name}:{mcp method name} {mcp descriptor}
- *   
- *   ac: Access Transformation
- *   	Possible values:
- *   		public
- *   		protected
- *   		private
- *   		package
- *   		-f	(remove final)
- *   		+f	(add final)
- *   ac's applied to a class should be applied to all members inside that class. 
- *   	'm' marker says it must be applied to methods
- *   	'f' marker says it must be applied to fields.
- *   	Both may be combined, but one must be present at all times.
+ *  <p>
+ *  <li>AccessTransformer directives may also be included but are not parsed.</li>
+ *  <li>Other files may be side loaded using >>{file} notation.</li>
+ *  <li>All srg names are give without their type prefix (field_/func_). It will be inferred from the context.</li>
+ *  </p>
+ *  <p>
+ *  <b>Format:</b>
+ *  <pre>{obfuscated package}:{mcp package}
+ *  	{obfuscated class}:{mcp class}
+ *  		{obfuscated field}:{srg field}:{mcp field}
+ *  		<init> {mcp descriptor}
+ *  		{obfuscated method name}:{srg method name}:{mcp method name} {mcp descriptor}
+ *  # Comments may be included as such</pre>
+ *  <b>AT (enhanced) format:</b>
+ *  <pre>{obfuscated package}:{mcp package}
+ *  	{ac}{f}{m}!{obfuscated class}:{mcp class}
+ *  		{ac}!{obfuscated field}:{srg field}:{mcp field}
+ *  		{ac}!<init> {mcp descriptor}
+ *  		{ac}!{obfuscated method name}:{srg method name}:{mcp method name} {mcp descriptor}</pre>
+ *  </p>
+ *  <p>
+ *  ac: Access Transformation
+ *  <br> Possible values:
+ *  <li>public</li>
+ *  <li>protected</li>
+ *  <li>private</li>
+ *  <li>package</li>
+ *  <li>-f (remove final)</li>
+ *  <li>+f (add final)</li>
+ *  </p>
+ *  <p>
+ *  ac's applied to a class should be applied to all members inside that class. 
+ *  <li>'m' marker says it must be applied to methods</li>
+ *  <li>'f' marker says it must be applied to fields.</li>
+ *  <br>Both may be combined, but one must be present at all times.
+ *  </p>
  */
 public class ONFParser implements URLParser {
 	private static final Pattern DESCRIPTOR_MATCHER = Pattern.compile(Patterns.DESCRIPTOR_PARAMETER);
@@ -71,6 +74,9 @@ public class ONFParser implements URLParser {
 	private final List<DetectedTransformation> transformations = Lists.newArrayList();
 	private final List<String> seenFiles = Lists.newArrayList();
 	
+	/**
+	 * Gets the list of access transformations found whilst parsing onf entries.
+	 */
 	public List<DetectedTransformation> getDetectedTransformations() {
 		return transformations;
 	}
@@ -151,6 +157,10 @@ public class ONFParser implements URLParser {
         }
 	}
 	
+	/**
+	 * Actually reads the onf format.
+	 * 
+	 */
     protected void parseFile(BufferedReader in, OBFTable table, boolean overwrite, boolean takeSrg) throws IOException {
     	String[] activePackage = null;
     	String[] activeClass = null;
@@ -390,32 +400,26 @@ public class ONFParser implements URLParser {
     	
     	private DetectedTransformation(String transform, String target, TargetType type) throws FormatException {
     		mcpTarget = target;
-    		if (type == TargetType.CLASS) {
-    			char one = transform.charAt(transform.length()-1);
-    			char two = transform.charAt(transform.length()-1);
-    			if (one == 'm') {
-    				targetType = TargetType.METHOD;
-    				if (two == 'f') {
-    					transform = transform.substring(0, transform.length() - 2);
-    					transformations.add(new DetectedTransformation(transform, target, TargetType.FIELD, true));
+    		isGlobal = type == TargetType.CLASS;
+    		if (isGlobal) {
+    			boolean hasM = transform.lastIndexOf('m') >= transform.length() - 2;
+    			boolean hasF = transform.lastIndexOf('f') >= transform.length() - 2;
+    			if (hasM || hasF) {
+    				transform = transform.substring(0, transform.length() - 1);
+    				if (hasM) {
+    					targetType = TargetType.METHOD;
+	    				if (hasF) {
+	    					transform = transform.substring(0, transform.length() - 1);
+	    					transformations.add(new DetectedTransformation(transform, target, TargetType.FIELD, true));
+	    				}
     				} else {
-    					transform = transform.substring(0, transform.length() - 1);
-    				}
-    			} else if (one == 'f') {
-    				targetType = TargetType.METHOD;
-    				if (two == 'm') {
-    					transform = transform.substring(0, transform.length() - 2);
-    					transformations.add(new DetectedTransformation(transform, target, TargetType.METHOD, true));
-    				} else {
-    					transform = transform.substring(0, transform.length() - 1);
+    					targetType = TargetType.FIELD;
     				}
     			} else {
     				throw new FormatException("Global access transformations must have a target type flag (f|m) at \n" + transform + "!" + target);
     			}
-    			isGlobal = true;
     		} else {
     			targetType = type;
-    			isGlobal = false;
     		}
     		directives = transform;
     	}
