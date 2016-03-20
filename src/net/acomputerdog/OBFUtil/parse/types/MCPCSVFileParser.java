@@ -18,21 +18,15 @@ public class MCPCSVFileParser extends CSVFileParser {
     //private static final int DESC_INDEX = 3;
 
     private final TargetType type;
-    private final int side;
-    private final boolean ignoreSides;
+    private final Side side;
 
     public MCPCSVFileParser(TargetType type) {
-        this(type, true, -1); //-1 in case of bugs
+        this(type, Side.NONE);
     }
-
-    public MCPCSVFileParser(TargetType type, int side) {
-        this(type, false, side);
-    }
-
-    public MCPCSVFileParser(TargetType type, boolean ignoreSides, int side) {
+    
+    public MCPCSVFileParser(TargetType type, Side side) {
         this.type = type;
         this.side = side;
-        this.ignoreSides = ignoreSides;
     }
 
     /**
@@ -46,7 +40,7 @@ public class MCPCSVFileParser extends CSVFileParser {
     public void writeCSVToTable(File source, CSVFile csv, OBFTable table) {
         for (int rowNum = 0; rowNum < csv.size(); rowNum++) {
             String[] row = csv.getRow(rowNum);
-            if (ignoreSides || Integer.parseInt(row[SIDE_INDEX]) == side) {
+            if (side == Side.NONE || Side.fromStringIndex(row[SIDE_INDEX]).equals(side)) {
                 table.addType(row[OBFNAME_INDEX], row[DEOBFNAME_INDEX], type);
             }
         }
@@ -67,7 +61,7 @@ public class MCPCSVFileParser extends CSVFileParser {
         for (String obf : obfs) {
             csv.addItem("searge", obf);
             csv.addItem("name", table.deobf(obf, type));
-            csv.addItem("side", Integer.toString(ignoreSides ? 0 : side));
+            csv.addItem("side", side.side + "");
             csv.addItem("desc", "");
         }
         return csv;
@@ -83,7 +77,7 @@ public class MCPCSVFileParser extends CSVFileParser {
             System.out.println("Path does not represent a file!  Use \"test <path_to_csv>\"");
             System.exit(0);
         }
-        FileParser parser = new MCPCSVFileParser(getTypeOfFile(csvFile), false, 0);
+        FileParser parser = new MCPCSVFileParser(getTypeOfFile(csvFile), Side.CLIENT);
         OBFTable table = new DirectOBFTable();
         try {
             parser.loadEntries(csvFile, table, true);
@@ -101,8 +95,40 @@ public class MCPCSVFileParser extends CSVFileParser {
     }
 
     private static TargetType getTypeOfFile(File f) {
-        if (f.getName().startsWith("fields")) return TargetType.FIELD;
-        else if (f.getName().startsWith("methods")) return TargetType.METHOD;
-        else throw new IllegalArgumentException("File is not a valid MCP CSV file!");
+    	String n = f.getName();
+        if (n.startsWith("fields")) return TargetType.FIELD;
+        if (n.startsWith("methods")) return TargetType.METHOD;
+        throw new IllegalArgumentException("File is not a valid MCP CSV file!");
+    }
+    
+    public static enum Side {
+    	NONE(-1),
+    	CLIENT(0),
+    	BOTH(1),
+    	SERVER(2);
+    	
+    	private final int side;
+    	Side(int side) {
+    		this.side = side;
+    	}
+    	
+    	public static Side fromStringIndex(String side) {
+    		return valueOf(Integer.valueOf(side));
+    	}
+    	
+    	public static Side valueOf(int side) {
+    		for (Side i : values()) {
+    			if (i.matches(side)) return i;
+    		}
+    		return NONE;
+    	}
+    	
+    	public boolean matches(int side) {
+    		return side == 2 || this.side == side;
+    	}
+    	
+    	public boolean equals(Side other) {
+    		return matches(other.side);
+    	}
     }
 }
