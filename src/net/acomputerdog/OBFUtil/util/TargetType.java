@@ -22,7 +22,6 @@ public enum TargetType {
      * A field
      */
     FIELD("FIELD", "FD"),
-    //TO DO: Add comment and param?
     /**
      * A class constructor
      */
@@ -32,6 +31,13 @@ public enum TargetType {
 
     TargetType(String... aliases) {
         this.aliases = aliases;
+    }
+    
+    /**
+     * Gets the simplest form of this TargetType.
+     */
+    public TargetType getBaseType() {
+    	return this == CONSTRUCTOR ? METHOD : this;
     }
 
     /**
@@ -44,7 +50,7 @@ public enum TargetType {
         if (type == null) {
             return null;
         }
-        for (TargetType tt : TargetType.values()) {
+        for (TargetType tt : values()) {
             for (String str : tt.aliases) {
                 if (type.equalsIgnoreCase(str)) {
                     return tt;
@@ -54,8 +60,11 @@ public enum TargetType {
         return null;
     }
     
-    private static TargetType[] parsable;
+    private final static TargetType[] parsable;
     
+    /**
+     * Gets the set of TargetTypes that can be stored to an .obf file.
+     */
     public static TargetType[] parsable() {
     	return parsable;
     }

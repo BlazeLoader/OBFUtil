@@ -3,6 +3,7 @@ package net.acomputerdog.OBFUtil.tool;
 import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.parse.types.BLOBFParser;
 import net.acomputerdog.OBFUtil.parse.types.MCPCSVFileParser;
+import net.acomputerdog.OBFUtil.parse.types.MCPCSVFileParser.Side;
 import net.acomputerdog.OBFUtil.parse.types.SRGFileParser;
 import net.acomputerdog.OBFUtil.table.DirectOBFTable;
 import net.acomputerdog.OBFUtil.table.DirectOBFTableSRG;
@@ -17,7 +18,7 @@ import java.io.IOException;
  * Creates BlazeLoader configuration files from MCP config files.
  */
 public class BLConfigGen {
-
+	private static final Side side = Side.CLIENT;
     public static void main(String[] args) throws IOException {
         if (args.length < 2) {
             System.out.println("Use \"Convert <mcp_dir> <output_dir>\"");
@@ -31,8 +32,8 @@ public class BLConfigGen {
         }
         System.out.println("Starting.");
         FileParser srgClient = new SRGFileParser("C", false);
-        FileParser csvMethodClient = new MCPCSVFileParser(TargetType.METHOD, true, 1);
-        FileParser csvFieldClient = new MCPCSVFileParser(TargetType.FIELD, true, 1);
+        FileParser csvMethodClient = new MCPCSVFileParser(TargetType.METHOD, side);
+        FileParser csvFieldClient = new MCPCSVFileParser(TargetType.FIELD, side);
         DirectOBFTableSRG client = new DirectOBFTableSRG();
         OBFTable srgTemp = new DirectOBFTable();
         OBFTable mcpTemp = new DirectOBFTable();
@@ -44,7 +45,7 @@ public class BLConfigGen {
         addSRGsField(client, srgTemp, mcpTemp);
 
         FileParser bl = new BLOBFParser();
-        bl.storeEntries(new File(out, "minecraft_client.obf"), client);
+        bl.storeEntries(new File(out, "minecraft_" + side.name().toLowerCase() + ".obf"), client);
         System.out.println("Done.");
     }
 

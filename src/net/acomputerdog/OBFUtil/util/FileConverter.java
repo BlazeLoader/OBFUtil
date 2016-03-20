@@ -1,4 +1,4 @@
-package net.acomputerdog.OBFUtil.tool;
+package net.acomputerdog.OBFUtil.util;
 
 import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.table.DirectOBFTable;
