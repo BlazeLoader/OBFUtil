@@ -187,14 +187,14 @@ public class ONFParser implements URLParser {
         			break;
         		case FIELD:
         			if (activeClass == null) throw new FormatException("Field before class at \n" + i);
-        			parsed = prependClassAndPackage(unambiguate(i, type), activePackage, activeClass);
+        			parsed = prependClassAndPackage(unambiguate(i, type), activeClass);
         			break;
         		case CONSTRUCTOR:
         		case METHOD:
         			if (activeClass == null) throw new FormatException("Method/Constructor before class at \n" + i);
         			if (i.indexOf(" ") == -1) throw new FormatException("Missing Method/Constructor arguments at \n" + i);
-        			parsed = prependClassAndPackage(unambiguate(i, type), activePackage, activeClass);
-        			retroActive.add(new Object[] { type, parsed, i.indexOf("!") != -1 ? null : i.split("!")[0] });
+        			parsed = prependClassAndPackage(unambiguate(i, type), activeClass);
+        			retroActive.add(new Object[] { type, parsed, i.indexOf("\\!") != -1 ? null : i.split("\\!")[0] });
         			continue;
         	}
         	if (i.indexOf("!") != -1 && type == TargetType.CLASS || type == TargetType.FIELD) {
@@ -210,13 +210,16 @@ public class ONFParser implements URLParser {
         }
         for (Object[] j : retroActive) {
         	String[] parsed = (String[])j[1];
-        	String obfuscatedDescriptor = obfuscateDescriptor(parsed[2].split(" ")[1], table);
+        	String deobfuscatedDecriptor = parsed[2].split(" ")[1];
+        	String obfuscatedDescriptor = obfuscateDescriptor(deobfuscatedDecriptor, table);
         	TargetType type = (TargetType)j[0];
+        	parsed[0] = parsed[0].split(" ")[0] + " " + obfuscatedDescriptor;
+        	parsed[1] = parsed[1].split(" ")[0] + " " + deobfuscatedDecriptor;
         	if (overwrite | !table.hasObf(parsed[0], type)) {
 	        	if (takeSrg) {
-	        		((DirectOBFTableSRG)table).addTypeSRG(parsed[0] + " " + obfuscatedDescriptor, parsed[1], parsed[2], type);
+	        		((DirectOBFTableSRG)table).addTypeSRG(parsed[0], parsed[1], parsed[2], type);
 	        	} else {
-	        		table.addType(parsed[0] + " " + obfuscatedDescriptor, parsed[2], type);
+	        		table.addType(parsed[0], parsed[2], type);
 	        	}
         	}
         	if (j[2] != null) {
