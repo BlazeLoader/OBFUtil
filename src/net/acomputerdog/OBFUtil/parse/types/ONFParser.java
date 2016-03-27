@@ -125,16 +125,24 @@ public class ONFParser implements URLParser {
 	 * @param overwrite	Tru to replace existing values in the table
 	 */
 	private void handleImport(String fileName, OBFTable table, boolean overwrite) {
-    	if (seenFiles.contains(fileName)) return;
-    	File file = new File(activeDirectory, fileName);
-    	if (file.exists()) {
-    		seenFiles.add(fileName);
-			try {
-				loadEntries(new FileInputStream(file), table, overwrite);
-			} catch (IOException e) {
-				(new IllegalArgumentException("Exception whilst sideloading file: \"" + fileName + "\". Skipping.", e)).printStackTrace();
-			}
-    	}
+		if (seenFiles.contains(fileName)) return;
+    	InputStream input = null;
+    	try {
+    		if (activeDirectory.contains("!")) {
+        		input = ONFParser.class.getResourceAsStream(activeDirectory.split("!")[1].concat("/").concat(fileName));
+        	} else {
+        		File f = new File(activeDirectory, fileName);
+        		if (f.exists()) input = new FileInputStream(f);
+        	}
+	    	if (input != null) {
+	    		seenFiles.add(fileName);
+				loadEntries(input, table, overwrite);
+	    	} else {
+	    		throw new IllegalArgumentException("File \"" + activeDirectory.concat("/").concat(fileName) + "\" could not be opened.");
+	    	}
+    	} catch (IOException e) {
+			(new IllegalArgumentException("Exception whilst sideloading file: \"" + fileName + "\". Skipping.", e)).printStackTrace();
+		}
     }
 	
 	@Override
