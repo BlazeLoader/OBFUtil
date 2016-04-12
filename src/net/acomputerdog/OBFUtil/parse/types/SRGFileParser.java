@@ -7,9 +7,6 @@ import net.acomputerdog.OBFUtil.util.TargetType;
 import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
 
 /**
  * Reads and writes obfuscation data to an MCP .srg file.
@@ -39,12 +36,24 @@ public class SRGFileParser implements FileParser {
      */
     @Override
     public void loadEntries(File file, OBFTable table, boolean overwrite) throws IOException {
-        if (file == null) {
-            throw new IllegalArgumentException("File must not be null!");
+        if (file == null) throw new IllegalArgumentException("File must not be null!");
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            parseFile(in, table, overwrite);
+        } catch (IOException e) {
+        	throw new IOException("Exception whilst reading file", e);
+        } catch (IllegalArgumentException e) {
+        	throw new IOException("Exception whilst reading file", e);
+        } finally {
+            if (in != null) in.close();
         }
-        int line = 0;
-        List<String> lines = FileUtils.readLines(file);
-        for (String str : lines) {
+    }
+    
+    private void parseFile(BufferedReader reader, OBFTable table, boolean overwrite) throws IOException {
+    	int line = 0;
+    	String str;
+    	while ((str = reader.readLine()) != null) {
             line++;
             String[] sections = str.split(Patterns.SPACE);
             if (sections.length < 3) {
@@ -65,8 +74,8 @@ public class SRGFileParser implements FileParser {
                     obf = sections[1].replace('/', '.');
                     deobf = sections[3].replace('/', '.');
                 } else {
-                    obf = sections[1].replace('/', '.').concat(" ").concat(sections[2].replace('/', '.'));
-                    deobf = sections[3].replace('/', '.').concat(" ").concat(sections[4].replace('/', '.'));
+                    obf = sections[1].replace('/', '.').concat(" ").concat(sections[2].replace('.', '/'));
+                    deobf = sections[3].replace('/', '.').concat(" ").concat(sections[4].replace('.', '/'));
                 }
                 side = (sections.length >= 6) ? sections[5].replace("#", "") : "";
             } else {
@@ -76,10 +85,9 @@ public class SRGFileParser implements FileParser {
 
 
             }
-            if ((overwrite || !table.hasDeobf(obf, type)) && (side.isEmpty() || side.equals(this.side))) {
+            if ((overwrite || !table.hasDeobf(obf, type)) && (side.isEmpty() || this.side.isEmpty() || side.equals(this.side))) {
                 table.addType(obf, deobf, type);
             }
-
         }
     }
 
@@ -98,17 +106,19 @@ public class SRGFileParser implements FileParser {
         Writer out = null;
         try {
             out = new BufferedWriter(new FileWriter(file));
-            for (TargetType type : TargetType.values()) {
+            for (TargetType type : TargetType.parsable()) {
                 for (String obf : table.getAllObf(type)) {
                     String deobf = table.deobf(obf, type);
                     out.write(getPrefix(type));
                     out.write(": ");
-                    out.write(obf);
+                    out.write(type == TargetType.PACKAGE && obf.length() == 1 ? obf : slash(obf));
                     out.write(" ");
-                    out.write(deobf);
-                    out.write(" #");
-                    out.write(side);
-                    out.write("\n");
+                    out.write(type == TargetType.PACKAGE && deobf.length() == 1 ? deobf : slash(deobf));
+                    if (side.length() > 0) {
+	                    out.write(" #");
+	                    out.write(side);
+                    }
+                    out.write(Patterns.LINE_SEPARATOR);
                 }
             }
         } finally {
@@ -118,6 +128,10 @@ public class SRGFileParser implements FileParser {
         }
     }
 
+	private String slash(String s) {
+		return s.replace('.', '/');
+	}
+	
     private String getPrefix(TargetType type) {
         switch (type) {
             case PACKAGE:
