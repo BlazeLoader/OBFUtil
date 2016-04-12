@@ -68,7 +68,7 @@ public class DirectOBFTable<P extends ObfMap.Entry, T extends ObfMap<P>> impleme
     	protected final Map<String, P> deobfuscated = new HashMap<String, P>();
     	
     	public String[] getAllObf() {
-    		return deobfuscated.keySet().toArray(new String[deobfuscated.size()]);
+    		return obfuscated.keySet().toArray(new String[obfuscated.size()]);
     	}
     	
     	public String[] getAllDeObf() {
