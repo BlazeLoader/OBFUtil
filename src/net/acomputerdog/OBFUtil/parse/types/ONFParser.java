@@ -318,12 +318,12 @@ public class ONFParser implements URLParser {
     
     private String obfuscateDescriptor(String descriptor, OBFTable table) {
     	String obfuscatedDescriptor = "";
-    	List<String> classes = splitDescriptor(descriptor);
+    	String[] split = descriptor.split("\\)");
+    	List<String> classes = splitDescriptor(split[0]);
+    	if (split.length < 2) throw new IllegalArgumentException("Missing return type for \"" + descriptor + "\"");
     	for (int j = 0; j < classes.size(); j++) {
     		obfuscatedDescriptor += obfParameter(classes.get(j), table);
     	}
-    	String[] split = descriptor.split("\\)");
-    	if (split.length < 2) throw new IllegalArgumentException("Missing return type for \"" + descriptor + "\"");
     	return "(" + obfuscatedDescriptor + ")" + obfParameter(split[1], table);
     }
     
