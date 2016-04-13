@@ -1,9 +1,9 @@
 package net.acomputerdog.OBFUtil.parse.types;
 
+import net.acomputerdog.OBFUtil.map.TargetType;
 import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.table.DirectOBFTable;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.OBFUtil.util.TargetType;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,6 +87,7 @@ public class MCPCSVFileParser extends CSVFileParser {
             System.exit(-1);
         }
         for (TargetType i : TargetType.parsable()) {
+        	if (!table.supportsType(i)) continue;
         	System.out.println(i.name() + ":");
         	for (String str : table.getAllObf(i)) {
                 System.out.println("   " + str + " = " + table.deobf(str, i));

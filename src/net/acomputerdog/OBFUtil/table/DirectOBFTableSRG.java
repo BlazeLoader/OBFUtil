@@ -3,8 +3,8 @@ package net.acomputerdog.OBFUtil.table;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.acomputerdog.OBFUtil.util.ObfMapSrg;
-import net.acomputerdog.OBFUtil.util.TargetType;
+import net.acomputerdog.OBFUtil.map.ObfMapSrg;
+import net.acomputerdog.OBFUtil.map.TargetType;
 
 /**
  * OBFTable that adds support for a third "searge" obfuscation name.  Based on DirectOBFTable.

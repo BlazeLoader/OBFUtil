@@ -12,19 +12,17 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.google.common.collect.Lists;
 
+import net.acomputerdog.OBFUtil.map.TargetType;
+import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.parse.URLParser;
-import net.acomputerdog.OBFUtil.table.DirectOBFTableSRG;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.OBFUtil.util.TargetType;
-import net.acomputerdog.core.java.Patterns;
+import net.acomputerdog.OBFUtil.table.OBFTableSRG;
+import net.acomputerdog.OBFUtil.util.Obfuscator;
 
 /**
  * 
@@ -66,8 +64,8 @@ import net.acomputerdog.core.java.Patterns;
  *  <br>Both may be combined, but one must be present at all times.
  *  </p>
  */
-public class ONFParser implements URLParser {
-	private static final Pattern DESCRIPTOR_MATCHER = Pattern.compile(Patterns.DESCRIPTOR_PARAMETER);
+public class ONFParser extends FileParser implements URLParser {
+	private final Obfuscator obfuscator = new Obfuscator();
 	
 	private String activeDirectory = null;
 	
@@ -105,7 +103,7 @@ public class ONFParser implements URLParser {
         BufferedReader in = null;
         try {
             in = new BufferedReader(new InputStreamReader(stream));
-            parseFile(in, table, overwrite, table instanceof DirectOBFTableSRG);
+            parseFile(in, table, overwrite);
         } catch (IOException e) {
         	throw new IOException("Exception whilst reading file", e);
         } catch (IllegalArgumentException e) {
@@ -125,7 +123,7 @@ public class ONFParser implements URLParser {
 	 * @param overwrite	Tru to replace existing values in the table
 	 */
 	private void handleImport(String fileName, OBFTable table, boolean overwrite) {
-		if (seenFiles.contains(fileName)) return;
+    	if (seenFiles.contains(fileName)) return;
     	InputStream input = null;
     	try {
     		if (activeDirectory.contains("!")) {
@@ -155,8 +153,8 @@ public class ONFParser implements URLParser {
         Writer out = null;
         try {
             out = new BufferedWriter(new OutputStreamWriter(stream));
-            if (table instanceof DirectOBFTableSRG) {
-                writeTableSRG(out, (DirectOBFTableSRG) table);
+            if (table instanceof OBFTableSRG) {
+                writeTableSRG(out, (OBFTableSRG) table);
             } else {
                 writeTableNormal(out, table);
             }
@@ -165,11 +163,9 @@ public class ONFParser implements URLParser {
         }
 	}
 	
-	/**
-	 * Actually reads the onf format.
-	 * 
-	 */
-    protected void parseFile(BufferedReader in, OBFTable table, boolean overwrite, boolean takeSrg) throws IOException {
+	@Override
+    protected void parseFile(BufferedReader in, OBFTable table, boolean overwrite) throws IOException {
+    	boolean takeSrg = table instanceof OBFTableSRG;
     	String[] activePackage = null;
     	String[] activeClass = null;
     	List<Object[]> retroActive = Lists.newArrayList();
@@ -210,7 +206,7 @@ public class ONFParser implements URLParser {
     		}
         	if (overwrite | !table.hasObf(parsed[0], type)) {
 	        	if (takeSrg) {
-	        		((DirectOBFTableSRG)table).addTypeSRG(parsed[0], parsed[1], parsed[2], type);
+	        		((OBFTableSRG)table).addTypeSRG(parsed[0], parsed[1], parsed[2], type);
 	        	} else {
 	        		table.addType(parsed[0], parsed[2], type);
 	        	}
@@ -219,13 +215,13 @@ public class ONFParser implements URLParser {
         for (Object[] j : retroActive) {
         	String[] parsed = (String[])j[1];
         	String deobfuscatedDecriptor = parsed[2].split(" ")[1];
-        	String obfuscatedDescriptor = obfuscateDescriptor(deobfuscatedDecriptor, table);
+        	String obfuscatedDescriptor = obfuscator.obfuscateDescriptor(deobfuscatedDecriptor, table);
         	TargetType type = (TargetType)j[0];
         	parsed[0] = parsed[0].split(" ")[0] + " " + obfuscatedDescriptor;
         	parsed[1] = parsed[1].split(" ")[0] + " " + deobfuscatedDecriptor;
         	if (overwrite | !table.hasObf(parsed[0], type)) {
 	        	if (takeSrg) {
-	        		((DirectOBFTableSRG)table).addTypeSRG(parsed[0], parsed[1], parsed[2], type);
+	        		((OBFTableSRG)table).addTypeSRG(parsed[0], parsed[1], parsed[2], type);
 	        	} else {
 	        		table.addType(parsed[0], parsed[2], type);
 	        	}
@@ -275,7 +271,7 @@ public class ONFParser implements URLParser {
         }
     }
     
-    protected void writeTableSRG(Writer out, DirectOBFTableSRG table) throws IOException {
+    protected void writeTableSRG(Writer out, OBFTableSRG table) throws IOException {
     	String[] packages = table.getAllDeobf(TargetType.PACKAGE);
         String[] classes = table.getAllDeobf(TargetType.CLASS);
         String[] fields = table.getAllDeobf(TargetType.FIELD);
@@ -314,41 +310,6 @@ public class ONFParser implements URLParser {
         		}
         	}
         }
-    }
-    
-    private String obfuscateDescriptor(String descriptor, OBFTable table) {
-    	String obfuscatedDescriptor = "";
-    	String[] split = descriptor.split("\\)");
-    	List<String> classes = splitDescriptor(split[0]);
-    	if (split.length < 2) throw new IllegalArgumentException("Missing return type for \"" + descriptor + "\"");
-    	for (int j = 0; j < classes.size(); j++) {
-    		obfuscatedDescriptor += obfParameter(classes.get(j), table);
-    	}
-    	return "(" + obfuscatedDescriptor + ")" + obfParameter(split[1], table);
-    }
-    
-    private String obfParameter(String item, OBFTable table) {
-    	if (item.endsWith(";")) {
-			String type = extractClass(item);
-			String dotted = type.replace("/", ".");
-			if (table.hasDeobf(dotted, TargetType.CLASS)) {
-				return item.replace(type, table.obf(dotted, TargetType.CLASS).replace(".", "/"));
-			}
-		}
-    	return item;
-    }
-    
-    private String extractClass(String descriptedClass) {
-    	String[] split = descriptedClass.split("\\[");
-    	String result = split[split.length - 1];
-    	return result.substring(1, result.length() - 1);
-    }
-    
-    private List<String> splitDescriptor(String descriptor) {
-    	List<String> params = new ArrayList<String>();
-    	Matcher matcher = DESCRIPTOR_MATCHER.matcher(descriptor.trim());
-    	while (matcher.find()) params.add(matcher.group());
-    	return params;
     }
     
     private String[] prependClassAndPackage(String[] arr, String[]... components) {

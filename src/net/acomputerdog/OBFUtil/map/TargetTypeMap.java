@@ -1,8 +1,6 @@
-package net.acomputerdog.OBFUtil.table;
+package net.acomputerdog.OBFUtil.map;
 
 import java.util.HashMap;
-
-import net.acomputerdog.OBFUtil.util.TargetType;
 
 public class TargetTypeMap<T> extends HashMap<TargetType, T> {
 	

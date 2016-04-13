@@ -1,6 +1,6 @@
 package net.acomputerdog.OBFUtil.table;
 
-import net.acomputerdog.OBFUtil.util.TargetType;
+import net.acomputerdog.OBFUtil.map.TargetType;
 
 /**
  * Extension to OBFTable that adds support for a third "searge" obfuscation name.

@@ -1,4 +1,4 @@
-package net.acomputerdog.OBFUtil.util;
+package net.acomputerdog.OBFUtil.map;
 
 public interface ObfMapSrg<T extends ObfMapSrg.Entry> extends ObfMap<T> {
 	

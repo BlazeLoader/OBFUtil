@@ -1,9 +1,9 @@
 package net.acomputerdog.OBFUtil.parse.types;
 
+import net.acomputerdog.OBFUtil.map.TargetType;
 import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.OBFUtil.util.TargetType;
 import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
@@ -11,7 +11,7 @@ import java.io.*;
 /**
  * Reads and writes obfuscation data to an MCP .srg file.
  */
-public class SRGFileParser implements FileParser {
+public class SRGFileParser extends FileParser {
 
     private final String side;
     private final boolean stripDescs;
@@ -26,31 +26,9 @@ public class SRGFileParser implements FileParser {
         this.side = side;
         this.stripDescs = stripMethodDescriptors;
     }
-
-    /**
-     * Loads all entries located in a File into an OBFTable.
-     *
-     * @param file      The file to load from.  Must exist.
-     * @param table     The table to write to.
-     * @param overwrite If true overwrite existing mappings.
-     */
-    @Override
-    public void loadEntries(File file, OBFTable table, boolean overwrite) throws IOException {
-        if (file == null) throw new IllegalArgumentException("File must not be null!");
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            parseFile(in, table, overwrite);
-        } catch (IOException e) {
-        	throw new IOException("Exception whilst reading file", e);
-        } catch (IllegalArgumentException e) {
-        	throw new IOException("Exception whilst reading file", e);
-        } finally {
-            if (in != null) in.close();
-        }
-    }
     
-    private void parseFile(BufferedReader reader, OBFTable table, boolean overwrite) throws IOException {
+    @Override
+    protected void parseFile(BufferedReader reader, OBFTable table, boolean overwrite) throws IOException {
     	int line = 0;
     	String str;
     	while ((str = reader.readLine()) != null) {
@@ -74,7 +52,7 @@ public class SRGFileParser implements FileParser {
                     obf = sections[1].replace('/', '.');
                     deobf = sections[3].replace('/', '.');
                 } else {
-                    obf = sections[1].replace('/', '.').concat(" ").concat(sections[2].replace('.', '/'));
+                	obf = sections[1].replace('/', '.').concat(" ").concat(sections[2].replace('.', '/'));
                     deobf = sections[3].replace('/', '.').concat(" ").concat(sections[4].replace('.', '/'));
                 }
                 side = (sections.length >= 6) ? sections[5].replace("#", "") : "";
@@ -107,6 +85,7 @@ public class SRGFileParser implements FileParser {
         try {
             out = new BufferedWriter(new FileWriter(file));
             for (TargetType type : TargetType.parsable()) {
+            	if (!table.supportsType(type)) continue;
                 for (String obf : table.getAllObf(type)) {
                     String deobf = table.deobf(obf, type);
                     out.write(getPrefix(type));
@@ -127,11 +106,11 @@ public class SRGFileParser implements FileParser {
             }
         }
     }
-
+    
 	private String slash(String s) {
 		return s.replace('.', '/');
 	}
-	
+
     private String getPrefix(TargetType type) {
         switch (type) {
             case PACKAGE:

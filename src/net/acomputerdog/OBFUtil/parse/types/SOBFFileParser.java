@@ -1,15 +1,11 @@
 package net.acomputerdog.OBFUtil.parse.types;
 
-import net.acomputerdog.OBFUtil.parse.FileParser;
+import net.acomputerdog.OBFUtil.map.TargetType;
 import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.OBFUtil.util.TargetType;
 import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
 
 /**
  * Reads and write obfuscation data to an SOBF (Sided OBFuscation) file.  This format is an adaption of the OBF format to support sides defined in MCP files.
@@ -18,7 +14,7 @@ import org.apache.commons.io.FileUtils;
  * // Comment type 2
  * <TYPE>.<SIDE>:<OBF>=<DEOBF>
  */
-public class SOBFFileParser implements FileParser {
+public class SOBFFileParser extends OBFParser {
 
     private final int side;
 
@@ -30,26 +26,14 @@ public class SOBFFileParser implements FileParser {
     public SOBFFileParser(int side) {
         this.side = side;
     }
-
-    /**
-     * Loads all entries located in a File into an OBFTable.
-     *
-     * @param file      The file to load from.  Must exist.
-     * @param table     The table to write to.
-     * @param overwrite If true overwrite existing mappings.
-     */
+    
     @Override
-    public void loadEntries(File file, OBFTable table, boolean overwrite) throws IOException {
-        if (file == null) {
-            throw new IllegalArgumentException("File must not be null!");
-        }
-        int line = 0;
-        List<String> lines = FileUtils.readLines(file);
-        for (String str : lines) {
+    protected void parseFile(BufferedReader reader, OBFTable table, boolean overwrite) throws IOException {
+    	int line = 0;
+    	String str;
+    	while ((str = reader.readLine()) != null) {
             line++;
-            if (isCommentLine(str)) {
-                continue;
-            }
+            if (isCommentLine(str)) continue;
             String[] typeParts = str.split(Patterns.COLON);
             if (typeParts.length < 2) {
                 throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
@@ -59,7 +43,6 @@ public class SOBFFileParser implements FileParser {
                 throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
             }
             TargetType type = TargetType.valueOf(sideParts[0]);
-            int side = Integer.parseInt(sideParts[1]);
             if (type == null) {
                 throw new FormatException("Illegal target type on line " + line + ": \"" + typeParts[0] + "\"");
             }
@@ -67,49 +50,23 @@ public class SOBFFileParser implements FileParser {
             if (obfParts.length < 2) {
                 throw new FormatException("Format error on line " + line + ": \"" + str + "\"");
             }
+            int side = Integer.parseInt(sideParts[1]);
             if ((overwrite || !table.hasDeobf(obfParts[0], type)) && (side == this.side)) {
                 table.addType(obfParts[0], obfParts[1], type);
             }
         }
     }
-
-    /**
-     * Saves all entries located in an OBFTable into a file.
-     *
-     * @param file  The file to write to.  Must exist.
-     * @param table The table to read from
-     * @throws java.io.IOException
-     */
+    
     @Override
-    public void storeEntries(File file, OBFTable table) throws IOException {
-        if (file == null) {
-            throw new IllegalArgumentException("File must not be null!");
-        }
-        Writer out = null;
-        try {
-            out = new BufferedWriter(new FileWriter(file));
-            for (TargetType type : TargetType.values()) {
-                for (String obf : table.getAllObf(type)) {
-                    String deobf = table.deobf(obf, type);
-                    out.write(type.name());
-                    out.write(".");
-                    out.write(this.side);
-                    out.write(":");
-                    out.write(obf);
-                    out.write("=");
-                    out.write(deobf);
-                    out.write("\n");
-                }
-            }
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-        }
-    }
-
-    private boolean isCommentLine(String str) {
-        str = str.trim();
-        return (str.isEmpty() || str.startsWith("#") || str.startsWith("//"));
+    protected void writeEntry(Writer out, String obf, TargetType type, OBFTable table) throws IOException {
+    	String deobf = table.deobf(obf, type);
+        out.write(type.name());
+        out.write(".");
+        out.write(side);
+        out.write(":");
+        out.write(obf);
+        out.write("=");
+        out.write(deobf);
+        out.write("\n");
     }
 }

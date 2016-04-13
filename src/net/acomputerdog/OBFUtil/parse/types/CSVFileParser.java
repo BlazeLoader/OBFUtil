@@ -10,31 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
-
 /**
  * Reads and writes obfuscation mappings to a .csv file.  Due to variations in CSV formats, this class is abstract so that subclasses can identify the correct data to read.
  */
-public abstract class CSVFileParser implements FileParser {
-
-    /**
-     * Writes the data in a CSVFile to an OBFTable
-     *
-     * @param source The file where the data originated from.
-     * @param csv    The CSVFile to read from
-     * @param table  The OBFTable to write to.
-     */
-    protected abstract void writeCSVToTable(File source, CSVFile csv, OBFTable table);
-
-    /**
-     * Creates a CSVFile representing the data in an OBFTable
-     *
-     * @param source The file where the data originated from.
-     * @param table  The table containing the data.
-     * @return Return a CSVFile representing the data in the OBFTable
-     */
-    protected abstract CSVFile readCSVFromTable(File source, OBFTable table);
-
+public abstract class CSVFileParser extends FileParser {
+	
+	private CSVFile csv;
+	
     /**
      * Loads all entries located in a File into an OBFTable.
      *
@@ -44,15 +26,18 @@ public abstract class CSVFileParser implements FileParser {
      */
     @Override
     public void loadEntries(File file, OBFTable table, boolean overwrite) throws IOException {
-        if (file == null) {
-            throw new IllegalArgumentException("File must not be null!");
-        }
-		
-        CSVFile csv = new CSVFile();
-        List<String> lines = FileUtils.readLines(file);
-        int lineNum = 0;
+    	csv = new CSVFile();
+        super.loadEntries(file, table, overwrite);
+        writeCSVToTable(file, csv, table);
+        csv = null;
+    }
+    
+    @Override
+    protected void parseFile(BufferedReader reader, OBFTable table, boolean overwrite) throws IOException {
+    	int lineNum = 0;
         String[] categories = new String[0];
-        for (String line : lines) {
+        String line;
+    	while ((line = reader.readLine()) != null) {
             if (!isLineEmpty(line)) {
                 String[] items = line.split(Patterns.COMMA);
                 if (lineNum == 0) {
@@ -78,8 +63,6 @@ public abstract class CSVFileParser implements FileParser {
                 lineNum++;
             }
         }
-        writeCSVToTable(file, csv, table);
-        
     }
 
     /**
@@ -108,7 +91,6 @@ public abstract class CSVFileParser implements FileParser {
         }
     }
 
-
     private boolean isLineEmpty(String line) {
         if (line.isEmpty()) {
             return true;
@@ -126,6 +108,25 @@ public abstract class CSVFileParser implements FileParser {
             return true;
         }
     }
+    
+
+    /**
+     * Writes the data in a CSVFile to an OBFTable
+     *
+     * @param source The file where the data originated from.
+     * @param csv    The CSVFile to read from
+     * @param table  The OBFTable to write to.
+     */
+    protected abstract void writeCSVToTable(File source, CSVFile csv, OBFTable table);
+
+    /**
+     * Creates a CSVFile representing the data in an OBFTable
+     *
+     * @param source The file where the data originated from.
+     * @param table  The table containing the data.
+     * @return Return a CSVFile representing the data in the OBFTable
+     */
+    protected abstract CSVFile readCSVFromTable(File source, OBFTable table);
 
     /**
      * A code structure representing a CSV file

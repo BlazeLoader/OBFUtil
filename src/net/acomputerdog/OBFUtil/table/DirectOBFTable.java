@@ -1,11 +1,12 @@
 package net.acomputerdog.OBFUtil.table;
 
-import net.acomputerdog.OBFUtil.util.ObfMap;
-import net.acomputerdog.OBFUtil.util.TargetType;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import net.acomputerdog.OBFUtil.map.ObfMap;
+import net.acomputerdog.OBFUtil.map.TargetType;
+import net.acomputerdog.OBFUtil.map.TargetTypeMap;
 
 /**
  * A simple, direct implementation of OBFTable.  Uses HashMaps and ArrayLists to store data.
@@ -29,6 +30,10 @@ public class DirectOBFTable<P extends ObfMap.Entry, T extends ObfMap<P>> impleme
     public boolean hasDeobf(String deobfName, TargetType type) {
     	return tableMappings.containsKey(type) && tableMappings.getChecked(type).hasDeObf(deobfName);
     }
+    
+	public boolean supportsType(TargetType type) {
+		return tableMappings.containsKey(type);
+	}
     
     public String[] getAllObf(TargetType type) {
     	return tableMappings.getChecked(type).getAllObf();
