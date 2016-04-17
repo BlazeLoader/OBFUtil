@@ -76,7 +76,7 @@ public class Obfuscator {
     	return item;
     }
     
-    private String extractClass(String descriptedClass) {
+    public String extractClass(String descriptedClass) {
     	String[] split = descriptedClass.split("\\[");
     	String result = split[split.length - 1];
     	return result.substring(1, result.length() - 1);
