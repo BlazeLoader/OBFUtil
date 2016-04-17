@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -90,7 +91,7 @@ public class ONFParser extends FileParser implements URLParser {
 	
 	@Override
 	public void loadEntries(URL url, OBFTable table, boolean overwrite) throws IOException {
-		String path = url.getPath().replace("\\", "/");
+		String path = URLDecoder.decode(url.getPath().replace("\\", "/"),"UTF-8");
 		activeDirectory = path.substring(0, path.lastIndexOf("/"));
 		seenFiles.add(path.replace(activeDirectory, ""));
 		loadEntries(url.openStream(), table, overwrite);
