@@ -8,7 +8,7 @@ import net.acomputerdog.OBFUtil.table.OBFTable;
 /**
  * Reads obfuscation mappings from a url.
  */
-public interface URLParser extends FileParser {
+public interface URLParser {
 
     /**
      * Loads all entries from a resource at a given url into an OBFTable.

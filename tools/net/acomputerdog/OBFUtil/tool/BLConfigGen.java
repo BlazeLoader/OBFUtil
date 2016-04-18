@@ -1,5 +1,6 @@
 package net.acomputerdog.OBFUtil.tool;
 
+import net.acomputerdog.OBFUtil.map.TargetType;
 import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.parse.types.BLOBFParser;
 import net.acomputerdog.OBFUtil.parse.types.MCPCSVFileParser;
@@ -8,7 +9,6 @@ import net.acomputerdog.OBFUtil.parse.types.SRGFileParser;
 import net.acomputerdog.OBFUtil.table.DirectOBFTable;
 import net.acomputerdog.OBFUtil.table.DirectOBFTableSRG;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.OBFUtil.util.TargetType;
 import net.acomputerdog.core.java.Patterns;
 
 import java.io.File;

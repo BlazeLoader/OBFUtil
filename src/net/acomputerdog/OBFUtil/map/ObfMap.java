@@ -1,4 +1,4 @@
-package net.acomputerdog.OBFUtil.util;
+package net.acomputerdog.OBFUtil.map;
 
 import net.acomputerdog.OBFUtil.table.OBFTable;
 

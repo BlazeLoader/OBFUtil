@@ -1,6 +1,6 @@
 package net.acomputerdog.OBFUtil.table;
 
-import net.acomputerdog.OBFUtil.util.TargetType;
+import net.acomputerdog.OBFUtil.map.TargetType;
 
 /**
  * Represents an object capable of managing obfuscation data.
@@ -48,6 +48,12 @@ public interface OBFTable {
      * @return Return true if the mapping is defined, false otherwise.
      */
     public boolean hasDeobf(String deobfName, TargetType type);
+    
+    /**
+     * Checks if this table is able to server entries for the given type.
+     * @param type	The TargetType to check for.
+     */
+    public boolean supportsType(TargetType type);
     
     /**
      * Get an array of all obfuscated TargetType names.

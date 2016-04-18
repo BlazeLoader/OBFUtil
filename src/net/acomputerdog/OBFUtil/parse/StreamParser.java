@@ -9,7 +9,7 @@ import java.io.OutputStream;
 /**
  * Reads and write obfuscation mappings to a stream.
  */
-public interface StreamParser extends FileParser {
+public interface StreamParser {
 
     /**
      * Loads all entries located in a stream into an OBFTable.
