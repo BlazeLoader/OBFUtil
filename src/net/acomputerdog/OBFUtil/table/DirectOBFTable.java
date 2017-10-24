@@ -48,7 +48,8 @@ public class DirectOBFTable<P extends ObfMap.Entry, T extends ObfMap<P>> impleme
     	if (!tableMappings.containsKey(type)) tableMappings.put(type, createMap());
     }
     
-    protected T createMap() {
+    @SuppressWarnings("unchecked")
+	protected T createMap() {
     	return (T)new Mapping();
     }
     
@@ -96,6 +97,7 @@ public class DirectOBFTable<P extends ObfMap.Entry, T extends ObfMap<P>> impleme
 			return deobfuscated.containsKey(deobf);
 		}
 		
+		@SuppressWarnings("unchecked")
 		public void add(String obf, String deobf) {
 			add((P)new ObfEntry(obf, deobf));
 		}

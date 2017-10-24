@@ -70,7 +70,7 @@ public enum TargetType {
     }
     
     static {
-    	ArrayList<TargetType> temp = new ArrayList();
+    	ArrayList<TargetType> temp = new ArrayList<TargetType>();
     	for (TargetType i : values()) {
     		if (i != CONSTRUCTOR) {
     			temp.add(i);

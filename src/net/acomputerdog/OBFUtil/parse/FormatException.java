@@ -6,7 +6,9 @@ import java.io.IOException;
  * Indicates that an IOException was caused due to an incorrect format in a file.
  */
 public class FormatException extends IOException {
-    /**
+	private static final long serialVersionUID = -4940350182878474676L;
+
+	/**
      * Constructs an {@code IOException} with {@code null}
      * as its error detail message.
      */

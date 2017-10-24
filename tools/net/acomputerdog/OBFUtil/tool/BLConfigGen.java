@@ -9,17 +9,20 @@ import net.acomputerdog.OBFUtil.parse.types.SRGFileParser;
 import net.acomputerdog.OBFUtil.table.DirectOBFTable;
 import net.acomputerdog.OBFUtil.table.DirectOBFTableSRG;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.core.java.Patterns;
 
 import java.io.File;
 import java.io.IOException;
 
+import com.blazeloader.util.regex.Patterns;
+
 /**
  * Creates BlazeLoader configuration files from MCP config files.
  */
+@Deprecated
 public class BLConfigGen {
 	private static final Side side = Side.CLIENT;
-    public static void main(String[] args) throws IOException {
+    @SuppressWarnings("rawtypes")
+	public static void main(String[] args) throws IOException {
         if (args.length < 2) {
             System.out.println("Use \"Convert <mcp_dir> <output_dir>\"");
             System.exit(0);
@@ -34,7 +37,7 @@ public class BLConfigGen {
         FileParser srgClient = new SRGFileParser("C", false);
         FileParser csvMethodClient = new MCPCSVFileParser(TargetType.METHOD, side);
         FileParser csvFieldClient = new MCPCSVFileParser(TargetType.FIELD, side);
-        DirectOBFTableSRG client = new DirectOBFTableSRG();
+        DirectOBFTableSRG<?,?> client = new DirectOBFTableSRG();
         OBFTable srgTemp = new DirectOBFTable();
         OBFTable mcpTemp = new DirectOBFTable();
         srgClient.loadEntries(new File(mcp, "joined.srg"), srgTemp, false);
@@ -49,7 +52,7 @@ public class BLConfigGen {
         System.out.println("Done.");
     }
 
-    private static void addSRGsMethod(DirectOBFTableSRG dest, OBFTable sourceSRG, OBFTable sourceMCP) {
+    private static void addSRGsMethod(DirectOBFTableSRG<?,?> dest, OBFTable sourceSRG, OBFTable sourceMCP) {
         for (String str : sourceSRG.getAllDeobf(TargetType.METHOD)) {
             String[] parts1 = str.split(Patterns.SPACE);
             if (parts1.length >= 1) {
@@ -64,7 +67,7 @@ public class BLConfigGen {
         }
     }
 
-    private static void addSRGsField(DirectOBFTableSRG dest, OBFTable sourceSRG, OBFTable sourceMCP) {
+    private static void addSRGsField(DirectOBFTableSRG<?,?> dest, OBFTable sourceSRG, OBFTable sourceMCP) {
         for (String str : sourceSRG.getAllDeobf(TargetType.FIELD)) {
             String[] parts = str.split(Patterns.PERIOD);
             if (parts.length >= 1) {

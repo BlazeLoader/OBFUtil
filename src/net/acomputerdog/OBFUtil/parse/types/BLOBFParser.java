@@ -5,9 +5,10 @@ import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.table.DirectOBFTableSRG;
 import net.acomputerdog.OBFUtil.table.OBFTable;
 import net.acomputerdog.OBFUtil.table.OBFTableSRG;
-import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
+
+import com.blazeloader.util.regex.Patterns;
 
 /**
  * BlazeLoader OBFuscation file.
@@ -26,6 +27,7 @@ public class BLOBFParser extends OBFParser {
         this.stripDescs = stripMethodDescriptors;
     }
     
+	@SuppressWarnings("rawtypes")
 	@Override
 	protected void parseFile(BufferedReader reader, OBFTable table, boolean overwrite) throws IOException {
 		boolean handleSrg = table instanceof DirectOBFTableSRG;
@@ -52,7 +54,8 @@ public class BLOBFParser extends OBFParser {
         }
 	}
 	
-    protected void parseStringArraySRG(int line, String str, String[] parts, TargetType type, DirectOBFTableSRG table, boolean overwrite) throws FormatException, IOException {
+    @SuppressWarnings("rawtypes")
+	protected void parseStringArraySRG(int line, String str, String[] parts, TargetType type, DirectOBFTableSRG table, boolean overwrite) throws FormatException, IOException {
     	if (type == TargetType.METHOD) {
             if (parts.length < 7) {
                 throw new FormatException("Format error on line " + line + ": \"" + str + "\"");

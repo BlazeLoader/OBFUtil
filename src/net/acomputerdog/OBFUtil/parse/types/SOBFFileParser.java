@@ -3,9 +3,10 @@ package net.acomputerdog.OBFUtil.parse.types;
 import net.acomputerdog.OBFUtil.map.TargetType;
 import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
+
+import com.blazeloader.util.regex.Patterns;
 
 /**
  * Reads and write obfuscation data to an SOBF (Sided OBFuscation) file.  This format is an adaption of the OBF format to support sides defined in MCP files.

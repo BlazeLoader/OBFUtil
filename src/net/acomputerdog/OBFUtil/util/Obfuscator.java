@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.blazeloader.util.regex.Patterns;
+
 import net.acomputerdog.OBFUtil.map.TargetType;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.core.java.Patterns;
 
 public class Obfuscator {
 	private static final Pattern DESCRIPTOR_MATCHER = Pattern.compile(Patterns.DESCRIPTOR_PARAMETER);

@@ -5,9 +5,10 @@ import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.parse.StreamParser;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
+
+import com.blazeloader.util.regex.Patterns;
 
 /**
  * Reads and write obfuscation mappings to a .obf file.

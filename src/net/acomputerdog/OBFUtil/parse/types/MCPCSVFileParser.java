@@ -78,7 +78,8 @@ public class MCPCSVFileParser extends CSVFileParser {
             System.exit(0);
         }
         FileParser parser = new MCPCSVFileParser(getTypeOfFile(csvFile), Side.CLIENT);
-        OBFTable table = new DirectOBFTable();
+        @SuppressWarnings("rawtypes")
+		OBFTable table = new DirectOBFTable();
         try {
             parser.loadEntries(csvFile, table, true);
         } catch (IOException e) {

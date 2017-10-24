@@ -31,7 +31,7 @@ import net.acomputerdog.OBFUtil.util.Obfuscator;
  *  <p>
  *  <li>AccessTransformer directives may also be included but are not parsed.</li>
  *  <li>Other files may be side loaded using >>{file} notation.</li>
- *  <li>All srg names are give without their type prefix (field_/func_). It will be inferred from the context.</li>
+ *  <li>All srg names are given without their type prefix (field_/func_). It will be inferred from the context.</li>
  *  </p>
  *  <p>
  *  <b>Format:</b>
@@ -56,10 +56,10 @@ import net.acomputerdog.OBFUtil.util.Obfuscator;
  *  <li>private</li>
  *  <li>package</li>
  *  <li>-f (remove final)</li>
- *  <li>+f (add final)</li>
+ *  <li>+f (add final) (not recommended)</li>
  *  </p>
  *  <p>
- *  ac's applied to a class should be applied to all members inside that class. 
+ *  ac's applied to a class are applied to all members inside that class. 
  *  <li>'m' marker says it must be applied to methods</li>
  *  <li>'f' marker says it must be applied to fields.</li>
  *  <br>Both may be combined, but one must be present at all times.

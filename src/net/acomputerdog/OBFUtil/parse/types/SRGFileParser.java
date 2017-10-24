@@ -4,9 +4,10 @@ import net.acomputerdog.OBFUtil.map.TargetType;
 import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.parse.FormatException;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
+
+import com.blazeloader.util.regex.Patterns;
 
 /**
  * Reads and writes obfuscation data to an MCP .srg file.

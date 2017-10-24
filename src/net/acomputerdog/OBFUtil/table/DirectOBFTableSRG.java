@@ -35,7 +35,8 @@ public class DirectOBFTableSRG<P extends ObfMapSrg.Entry, T extends ObfMapSrg<P>
     	return tableMappings.getChecked(type).getAllSrg();
     }
     
-    protected T createMap() {
+    @SuppressWarnings("unchecked")
+	protected T createMap() {
     	return (T)new MappingSrg();
     }
     
@@ -64,6 +65,7 @@ public class DirectOBFTableSRG<P extends ObfMapSrg.Entry, T extends ObfMapSrg<P>
 			return searge.containsKey(srg);
 		}
 		
+		@SuppressWarnings("unchecked")
 		public void add(String obf, String deobf, String srg) {
 			add((P)new ObfEntrySrg(obf, deobf, srg));
 		}
@@ -78,7 +80,7 @@ public class DirectOBFTableSRG<P extends ObfMapSrg.Entry, T extends ObfMapSrg<P>
 		}
     }
     
-    public class ObfEntrySrg extends DirectOBFTable.ObfEntry implements ObfMapSrg.Entry {
+    public class ObfEntrySrg extends DirectOBFTable<P, T>.ObfEntry implements ObfMapSrg.Entry {
 		public String searge;
 		
 		public ObfEntrySrg(String obf, String deobf, String srg) {

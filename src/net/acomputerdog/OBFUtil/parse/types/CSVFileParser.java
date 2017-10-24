@@ -2,13 +2,14 @@ package net.acomputerdog.OBFUtil.parse.types;
 
 import net.acomputerdog.OBFUtil.parse.FileParser;
 import net.acomputerdog.OBFUtil.table.OBFTable;
-import net.acomputerdog.core.java.Patterns;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.blazeloader.util.regex.Patterns;
 
 /**
  * Reads and writes obfuscation mappings to a .csv file.  Due to variations in CSV formats, this class is abstract so that subclasses can identify the correct data to read.
